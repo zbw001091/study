@@ -1,0 +1,16 @@
+server:
+  port: 8083
+  servlet: 
+    context-path: /study
+
+spring:
+  redis:
+    host: 10.203.110.39
+    port: 19000
+    password:
+    lettuce:
+      pool:
+        max-active: 32
+        max-wait: 300ms
+        max-idle: 16
+        min-idle: 8
