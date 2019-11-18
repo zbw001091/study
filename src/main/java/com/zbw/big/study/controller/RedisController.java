@@ -10,10 +10,13 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisCallback;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.zbw.big.study.util.RedisRunnable;
 import com.zbw.big.study.util.RedisUtil;
@@ -25,7 +28,10 @@ public class RedisController {
 	private RedisUtil redis;
 
 	@Autowired
-	private RedisTemplate redisTemplate;
+	private StringRedisTemplate stringRedisTemplate;
+	
+	private HashOperations hashOps;
+	private ValueOperations stringOps;
 	
 	@Resource(name = "threadPool4Redis")
 	private ExecutorService threadPoolRedis;
@@ -41,9 +47,28 @@ public class RedisController {
 		return "success";
 	}
 
+	@RequestMapping("/getHash")
+	public String getHash(@RequestParam(value="key") String key) {
+		hashOps = stringRedisTemplate.opsForHash();
+		Map<String, Integer> hashEntries = hashOps.entries(key);
+		for(Map.Entry<String, Integer> entry : hashEntries.entrySet()){
+		    String hashKey = entry.getKey();
+		    int hashValue = entry.getValue();
+		    System.out.println(hashKey+":"+hashValue);
+		}
+		return "success";
+	}
+	
+	@RequestMapping("/getString")
+	public String getString(@RequestParam(value="key") String key) {
+		stringOps = stringRedisTemplate.opsForValue();
+		System.out.println(stringOps.get(key));
+		return "success";
+	}
+	
 	@RequestMapping("/saveKPIwithPipeline")
-	public void saveKPIwithPipeline() {
-        List<Object> resultList = redisTemplate.executePipelined(new RedisCallback<Object>() {
+	public String saveKPIwithPipeline() {
+        List<Object> resultList = stringRedisTemplate.executePipelined(new RedisCallback<Object>() {
             @Override
             public String doInRedis(RedisConnection connection) throws DataAccessException {
 //                2.connection 打开管道
@@ -63,7 +88,7 @@ public class RedisController {
                 connection.mSet(tuple);
 
 //                 3.3一个get操作
-                System.err.println(connection.get("m_mykey2".getBytes()));
+//                System.err.println(connection.get("m_mykey2".getBytes()));
 
 //                4.关闭管道 不需要close 否则拿不到返回值
 //                connection.closePipeline();
@@ -72,6 +97,7 @@ public class RedisController {
                 return null;
             }
         });
+        return "success";
 	}
 
 	// 模拟20条线程，并发写Redis
