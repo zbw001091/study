@@ -5,13 +5,11 @@ import java.net.UnknownHostException;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
+//@Configuration
 public class ElasticSearchConfig {
 
-	@Bean
+//	@Bean
     public RestHighLevelClient client() throws UnknownHostException {
         RestHighLevelClient client = new RestHighLevelClient(
                 RestClient.builder(

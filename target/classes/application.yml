@@ -25,6 +25,30 @@ spring:
         username: 
         password: 
 
+  rocketmq:
+      #profile: p1 按需要设置
+      nameServerAddress:  10.203.106.26:9876;10.203.106.27:9876
+      #ACL
+      accessKey: RocketMQ
+      secretKey: 12345678
+      #是否需要追述 默认true
+      enableMsgTrace: true
+      producer:
+        #按照需要设置
+        group: demoApp
+        #timeout
+        sendMessageTimeout: 3000
+        #触发压缩界限,默认4K
+        compressMessageBodyThreshold: 4096
+        #同步发送的最大重试次数
+        retryTimesWhenSendFailed: 2
+        #异步发送的最大重试次数
+        retryTimesWhenSendAsyncFailed: 2
+        #默认
+        retryNextServer: true
+        #消息大小上限
+        maxMessageSize: 536870912
+        
   datasource:
     #JDBC基本配置
     driverClassName: com.mysql.jdbc.Driver
