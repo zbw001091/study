@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zbw.big.study.repository.BalanceMapper">
+	<resultMap id="BaseResultMap" type="com.zbw.big.study.dao.Balance">
+		<id column="BalanceNo" property="BalanceNo" jdbcType="INTEGER" />
+		<result column="Name" property="Name" jdbcType="VARCHAR" />
+		<result column="description" property="description" jdbcType="VARCHAR" />
+		<result column="LabourName" property="LabourName" jdbcType="VARCHAR" />
+		<result column="PartName" property="PartName" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="selectByJoin" resultMap="BaseResultMap">
+		select b.BalanceNo,b.Name,b.description,l.LabourName,p.PartName
+		from tb_balance b,tb_labour l,tb_part p
+		where b.BalanceNo=l.BalanceNo
+		and l.LabourNo=p.LabourNo;
+	</select>
+</mapper>
