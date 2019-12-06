@@ -16,7 +16,7 @@ import com.alibaba.druid.pool.DruidDataSource;
  * @author st78sr
  *
  */
-@Configuration
+//@Configuration
 public class MysqlDataSourceConfig {
 	@Value("${spring.datasource.url}")
 	private String dbUrl;
@@ -57,8 +57,8 @@ public class MysqlDataSourceConfig {
 	@Value("${spring.datasource.useGlobalDataSourceStat}")
 	private boolean useGlobalDataSourceStat;
 
-	@Bean
-	@Primary // 在同样的DataSource中，首先使用被标注的DataSource
+//	@Bean
+//	@Primary // 在同样的DataSource中，首先使用被标注的DataSource
 	public DataSource dataSource() {
 		DruidDataSource datasource = new DruidDataSource();
 		datasource.setUrl(this.dbUrl);

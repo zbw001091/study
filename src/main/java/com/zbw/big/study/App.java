@@ -12,7 +12,7 @@ import com.sgm.dmsii.message.annotation.EnableMQConfiguration;
  */
 @SpringBootApplication
 @EnableMQConfiguration
-@MapperScan("com.zbw.big.study.repository")
+@MapperScan({"com.zbw.big.study.oracle.repository","com.zbw.big.study.repository"})
 public class App 
 {
     public static void main( String[] args )

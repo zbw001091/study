@@ -48,31 +48,36 @@ spring:
         retryNextServer: true
         #消息大小上限
         maxMessageSize: 536870912
-        
+
   datasource:
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    url: jdbc:oracle:thin:@10.203.71.135:1531:PT02
+    username: owascbt
+    password: Qwer1234
+
     #JDBC基本配置
-    driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/test?characterEncoding=utf-8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=UTC
-    username: root
-    password: 
+#    driverClassName: com.mysql.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/test?characterEncoding=utf-8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=UTC
+#    username: root
+#    password: 
 
     #数据源连接池配置
-    type: com.alibaba.druid.pool.DruidDataSource
-    initialSize: 2
-    minIdle: 2
-    maxActive: 3
-    maxWait: 60000                          #配置获取连接等待超时的时间
-    timeBetweenEvictionRunsMillis: 60000    #配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
-    minEvictableIdleTimeMillis: 300000      #配置一个连接在池中最小生存的时间，单位是毫秒
-    validationQuery: SELECT 1 from dual
-    testWhileIdle: true
-    testOnBorrow: false
-    testOnReturn: false
-    poolPreparedStatements: true
-    maxPoolPreparedStatementPerConnectionSize: 20
-    filters: stat,wall,log4j                #配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
-    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
-    useGlobalDataSourceStat: true
+#    type: com.alibaba.druid.pool.DruidDataSource
+#    initialSize: 2
+#    minIdle: 2
+#    maxActive: 3
+#    maxWait: 60000                          #配置获取连接等待超时的时间
+#    timeBetweenEvictionRunsMillis: 60000    #配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+#    minEvictableIdleTimeMillis: 300000      #配置一个连接在池中最小生存的时间，单位是毫秒
+#    validationQuery: SELECT 1 from dual
+#    testWhileIdle: true
+#    testOnBorrow: false
+#    testOnReturn: false
+#    poolPreparedStatements: true
+#    maxPoolPreparedStatementPerConnectionSize: 20
+#    filters: stat,wall,log4j                #配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+#    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+#    useGlobalDataSourceStat: true
 
 mybatis:
   mapper-locations: classpath:repository/*.xml

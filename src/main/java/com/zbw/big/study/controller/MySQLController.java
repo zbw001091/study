@@ -7,6 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.zbw.big.study.dao.Balance;
+import com.zbw.big.study.dao.NestedBalance;
+import com.zbw.big.study.dao.NestedLabour;
 import com.zbw.big.study.dao.User;
 import com.zbw.big.study.service.BalanceService;
 import com.zbw.big.study.service.UserService;
@@ -34,6 +36,21 @@ public class MySQLController {
 		System.out.println("list.size():" + list.size());
 		for (Balance balance : list) {
 			System.out.println(balance.getPartName());
+		}
+		return "success";
+	}
+	
+	// 查询一个多表join，返回Nested嵌套对象（而非打平flat）
+	@RequestMapping("/getAllNestedBalances")
+	public String getAllNestedBalances() {
+		List<NestedBalance> list = balanceService.getByNestedJoin();
+		System.out.println("list.size():" + list.size());
+		for (NestedBalance nestedBalance : list) {
+			System.out.println(nestedBalance.getBalanceNo());
+			System.out.println(nestedBalance.getLabours().size() + " labours");
+			for (NestedLabour nestedLabour : nestedBalance.getLabours()) {
+				System.out.println(nestedLabour.getLabourName() + " has " + nestedLabour.getParts().size() + " parts");
+			}
 		}
 		return "success";
 	}

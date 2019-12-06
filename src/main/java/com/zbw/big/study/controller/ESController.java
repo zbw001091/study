@@ -2,9 +2,10 @@ package com.zbw.big.study.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.ibatis.cursor.Cursor;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -23,19 +24,20 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.sgm.dmsii.message.base.MessageExtConst;
 import com.sgm.dmsii.message.core.RocketMQTemplate;
-import com.zbw.big.study.dao.Balance;
 import com.zbw.big.study.dao.NestedObject;
 import com.zbw.big.study.dao.User;
 import com.zbw.big.study.es.connectionpool.EsConnectionPoolUtil;
 import com.zbw.big.study.es.dao.BankAccount;
+import com.zbw.big.study.oracle.model.TtRoBalancedJoinLabour;
+import com.zbw.big.study.oracle.repository.TtRoBalancedMapper;
 import com.zbw.big.study.service.BalanceService;
+import com.zbw.big.study.service.TtRoBalancedService;
 import com.zbw.big.study.util.JsonUtil;
 
 @Controller
@@ -50,19 +52,24 @@ public class ESController {
 	@Autowired
 	private BalanceService balanceService;
 	
+	@Autowired
+	private TtRoBalancedService ttRoBalancedService;
+	
+	@Autowired
+	private SqlSessionTemplate sqlSession;
+	
 	private String index = "splitbank"; // 从多个index中查询
-	private String type = "_doc";
 	
 	// index单个document
 	@RequestMapping("/indexOneDocument")
 	public String indexOneDocument() {
 		BankAccount bankAccount = new BankAccount();
 		bankAccount.setAccount_number(1001);
-		bankAccount.setAddress("xingzhi rd");
+		bankAccount.setAddress("shenjiang rd");
 		bankAccount.setAge(38);
 		bankAccount.setBalance(10000000);
 		bankAccount.setCity("Shanghai");
-		this.index("splitbank", bankAccount);
+		this.index("test", bankAccount);
         
 		return "success";
 	}
@@ -90,10 +97,36 @@ public class ESController {
 //		list.add(bankAccount2);
 		
 		// 从MySQL里查询多表Join售后结算单，笛卡尔积打平，bulk进入ES
-		List<Balance> list = balanceService.getByJoin();
-		this.bulkIndex("splitbank", list);
+//		List<Balance> list = balanceService.getByJoin();
+//		this.bulkIndex("splitbank", list);
+		
+		List<TtRoBalancedJoinLabour> list = ttRoBalancedService.getByJoin();
+		this.bulkIndex("balancejoinlabourpoc", list);
 		
 		return "success";
+	}
+	
+	@RequestMapping("/indexBulkByStream")
+	public String indexBulkByStream() {
+//		TtRoBalancedMapper ttRoBalancedMapper = sqlSession.getMapper(TtRoBalancedMapper.class);
+//		ttRoBalancedMapper.selectByJoin();
+		
+		ttRoBalancedService.getByJoinWithStream();
+		
+//		Cursor<TtRoBalancedJoinLabour> ttRoBalancedJoinLabourCursor = sqlSession.selectCursor("com.zbw.big.study.oracle.repository.TtRoBalancedMapper.selectByJoin");
+//		System.err.println(ttRoBalancedJoinLabourCursor.isOpen());
+//		Iterator<TtRoBalancedJoinLabour> iter = ttRoBalancedJoinLabourCursor.iterator();
+//	    List list = new ArrayList<TtRoBalancedJoinLabour>();
+//	    int i = 0;
+//	    System.err.println(iter.hasNext());
+//	    while (iter.hasNext()) {
+//	    	if (i < 3000) {
+//	    		list.add(iter.next());
+//	    		i++;
+//	    		System.err.println("sss");
+//	    	}
+//	    }
+	    return "success";
 	}
 	
 	// index by bulk
@@ -189,11 +222,11 @@ public class ESController {
 		}
         
         // 异步写ES，先写RocketMQ
-        SendResult result=rocketMQTemplate.syncSend(
-                "estest-es-topic:concurrently",MessageBuilder //demo_topic:concurrently ,topic=demo_topic\tag=concurrently
-                        .withPayload(source)
-                        .setHeader(MessageExtConst.PROPERTY_KEYS, "KEY_") //+ demo.getId())
-                        .build());
+//        SendResult result=rocketMQTemplate.syncSend(
+//                "estest-es-topic:concurrently",MessageBuilder //demo_topic:concurrently ,topic=demo_topic\tag=concurrently
+//                        .withPayload(source)
+//                        .setHeader(MessageExtConst.PROPERTY_KEYS, "KEY_") //+ demo.getId())
+//                        .build());
 	}
 	
 	/**
@@ -201,9 +234,10 @@ public class ESController {
 	 * @param indexName indexName
 	 * @param list: list of object to be bulk indexed
 	 */
-	private void bulkIndex(String indexName, List<Balance> list) {
+	private void bulkIndex(String indexName, List<TtRoBalancedJoinLabour> list) {
 		BulkRequest bulkRequest = new BulkRequest();
 		IndexRequest indexRequest = null;
+		System.out.println(list.size());
 		for (Object object : list) {
 			indexRequest = new IndexRequest(indexName).source(JsonUtil.obj2String(object), XContentType.JSON);
 			bulkRequest.add(indexRequest);
@@ -216,6 +250,17 @@ public class ESController {
         	
         	BulkResponse bulkResponse = rhlClient.bulk(bulkRequest, RequestOptions.DEFAULT);
         	
+        	if (bulkResponse.hasFailures()) {
+        		for (BulkItemResponse bulkItemResponse : bulkResponse) {
+        		    if (bulkItemResponse.isFailed()) {
+        		        BulkItemResponse.Failure failure = bulkItemResponse.getFailure();
+        		        System.out.println(failure.getMessage());
+        		        System.out.println(failure.getType());
+        		        System.out.println(failure.getCause());
+        		    }
+        		}
+        	}
+        	
         	for (BulkItemResponse bulkItemResponse : bulkResponse) {
         	    DocWriteResponse itemResponse = bulkItemResponse.getResponse();
         	    
@@ -223,9 +268,9 @@ public class ESController {
         	    case INDEX:
         	    case CREATE:
         	        IndexResponse indexResponse = (IndexResponse) itemResponse;
-        	        if (indexResponse.getResult() == DocWriteResponse.Result.CREATED) {
-                        System.out.println(">>> index success, _id: " + indexResponse.getId());
-                    }
+//        	        if (indexResponse.getResult() == DocWriteResponse.Result.CREATED) {
+//                        System.out.println(">>> index success, _id: " + indexResponse.getId());
+//                    }
         	        break;
         	    case UPDATE:
         	        UpdateResponse updateResponse = (UpdateResponse) itemResponse;

@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import com.zbw.big.study.dao.Balance;
+import com.zbw.big.study.dao.NestedBalance;
 import com.zbw.big.study.repository.BalanceMapper;
 import com.zbw.big.study.service.BalanceService;
 
@@ -21,4 +22,8 @@ public class BalanceServiceImpl implements BalanceService {
 		return balanceMapper.selectByJoin();
 	}
 
+	@Override
+	public List<NestedBalance> getByNestedJoin() {
+		return balanceMapper.selectByNestedJoin();
+	}
 }

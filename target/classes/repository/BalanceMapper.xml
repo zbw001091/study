@@ -8,8 +8,31 @@
 		<result column="LabourName" property="LabourName" jdbcType="VARCHAR" />
 		<result column="PartName" property="PartName" jdbcType="VARCHAR" />
 	</resultMap>
+	<resultMap id="NestedResultMap" type="com.zbw.big.study.dao.NestedBalance">
+		<id column="BalanceNo" property="BalanceNo" jdbcType="INTEGER" />
+		<result column="Name" property="Name" jdbcType="VARCHAR" />
+		<result column="description" property="description" jdbcType="VARCHAR" />
+		<collection property="labours" ofType="com.zbw.big.study.dao.NestedLabour">
+        	<id column="LabourNo" property="LabourNo" jdbcType="INTEGER" />
+        	<result column="LabourName" property="LabourName" jdbcType="VARCHAR" />
+        	<result column="LabourDesc" property="LabourDesc" jdbcType="VARCHAR" />
+        	<collection property="parts" ofType="com.zbw.big.study.dao.NestedPart">
+        		<id column="PartNo" property="PartNo" jdbcType="INTEGER" />
+        		<result column="PartName" property="PartName" jdbcType="VARCHAR" />
+        		<result column="PartDesc" property="PartDesc" jdbcType="VARCHAR" />
+        	</collection>
+        </collection>
+	</resultMap>
+	
 	<select id="selectByJoin" resultMap="BaseResultMap">
 		select b.BalanceNo,b.Name,b.description,l.LabourName,p.PartName
+		from tb_balance b,tb_labour l,tb_part p
+		where b.BalanceNo=l.BalanceNo
+		and l.LabourNo=p.LabourNo;
+	</select>
+	
+	<select id="selectByNestedJoin" resultMap="NestedResultMap">
+		select b.BalanceNo,b.Name,b.description,l.LabourNo,l.LabourName,l.LabourDesc,p.PartNo,p.PartName,p.PartDesc
 		from tb_balance b,tb_labour l,tb_part p
 		where b.BalanceNo=l.BalanceNo
 		and l.LabourNo=p.LabourNo;
