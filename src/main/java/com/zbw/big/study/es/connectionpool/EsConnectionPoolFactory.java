@@ -40,7 +40,7 @@ public class EsConnectionPoolFactory implements PooledObjectFactory<RestHighLeve
 //		return new DefaultPooledObject<RestHighLevelClient>(client);
 		
 		CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-		credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("elastic","ehgjqQWcvFM5MKaekNbPkfsC"));
+		credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("elastic","ehgjqQWcvFM5MKaekNbPkfsC"));//balance2/balance2只能有RBAC权限访问balancejoinlabourpoc2这个index
 		RestClientBuilder builder = RestClient.builder(new HttpHost("fd025d4752df4290b99f1b8fde02b315.10.203.80.133.ip.es.io", 9200))
 		    .setHttpClientConfigCallback(new HttpClientConfigCallback() {
 		        @Override

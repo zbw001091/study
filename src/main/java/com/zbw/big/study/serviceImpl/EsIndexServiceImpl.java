@@ -1,6 +1,7 @@
 package com.zbw.big.study.serviceImpl;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import org.elasticsearch.action.DocWriteResponse;
@@ -75,9 +76,12 @@ public class EsIndexServiceImpl implements EsIndexService {
 	public void bulkIndex(String indexName, List<TtRoBalancedJoinLabour> list) {
 		BulkRequest bulkRequest = new BulkRequest();
 		IndexRequest indexRequest = null;
-		System.out.println(list.size());
+//		System.out.println(list.size());
 		for (Object object : list) {
 			indexRequest = new IndexRequest(indexName).source(JsonUtil.obj2String(object), XContentType.JSON);
+			
+			// 按照document的brand字段值，进行routing，不同brand的document进入该index的不同shard分片
+//			indexRequest = new IndexRequest(indexName).source(JsonUtil.obj2String(object), XContentType.JSON).routing(((TtRoBalancedJoinLabour)object).getBrand());
 			bulkRequest.add(indexRequest);
 		}
 		
@@ -85,7 +89,7 @@ public class EsIndexServiceImpl implements EsIndexService {
         try {
         	// 从连接池领用
         	rhlClient = EsConnectionPoolUtil.getClient();
-        	
+        	System.out.println("start index2es: " + new Date());
         	BulkResponse bulkResponse = rhlClient.bulk(bulkRequest, RequestOptions.DEFAULT);
         	
         	if (bulkResponse.hasFailures()) {

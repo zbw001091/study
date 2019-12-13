@@ -2,10 +2,8 @@ package com.zbw.big.study.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.apache.ibatis.cursor.Cursor;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -20,8 +18,7 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -29,13 +26,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.sgm.dmsii.message.core.RocketMQTemplate;
 import com.zbw.big.study.dao.NestedObject;
 import com.zbw.big.study.dao.User;
 import com.zbw.big.study.es.connectionpool.EsConnectionPoolUtil;
 import com.zbw.big.study.es.dao.BankAccount;
 import com.zbw.big.study.oracle.model.TtRoBalancedJoinLabour;
-import com.zbw.big.study.oracle.repository.TtRoBalancedMapper;
 import com.zbw.big.study.service.BalanceService;
 import com.zbw.big.study.service.TtRoBalancedService;
 import com.zbw.big.study.util.JsonUtil;
@@ -151,31 +146,7 @@ public class ESController {
 	
 	@RequestMapping("/searchOneDocument")
 	public String searchOneDocument() {
-		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.from(0);
-        sourceBuilder.size(10);
-        sourceBuilder.fetchSource("", "");
-        MatchQueryBuilder matchQuery1 = QueryBuilders.matchQuery("address", "xingzhi");
-        MatchQueryBuilder matchQuery2 = QueryBuilders.matchQuery("city", "ID");
-//        TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("tag", "体育");
-//        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("publishTime");
-//        rangeQueryBuilder.gte("2018-01-26T08:00:00Z");
-//        rangeQueryBuilder.lte("2018-01-26T20:00:00Z");
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must(matchQuery1);
-        boolQuery.mustNot(matchQuery2);
-//        boolBuilder.must(termQueryBuilder);
-//        boolBuilder.must(rangeQueryBuilder);
-        sourceBuilder.query(boolQuery);
-        SearchRequest searchRequest = new SearchRequest(index);
-//        searchRequest.types(type);
-        searchRequest.source(sourceBuilder);
-        try {
-            SearchResponse response = rhlClient.search(searchRequest, RequestOptions.DEFAULT);
-            System.out.println(response);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+		this.searchDocument();
 		return "success";
 	}
 	
@@ -281,6 +252,50 @@ public class ESController {
         	}
         	
         	// 还给连接池
+            EsConnectionPoolUtil.returnClient(rhlClient);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void searchDocument() {
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.from(0);
+        sourceBuilder.size(10);
+        String[] includes = new String[] { "balanceNo","roNo","serviceAdvisor","repairItemId" };
+        sourceBuilder.fetchSource(includes, null);
+        
+        /**
+        MatchQueryBuilder matchQuery1 = QueryBuilders.matchQuery("address", "xingzhi");
+        MatchQueryBuilder matchQuery2 = QueryBuilders.matchQuery("city", "ID");
+//        TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("tag", "体育");
+//        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("publishTime");
+//        rangeQueryBuilder.gte("2018-01-26T08:00:00Z");
+//        rangeQueryBuilder.lte("2018-01-26T20:00:00Z");
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        boolQuery.must(matchQuery1);
+        boolQuery.mustNot(matchQuery2);
+//        boolBuilder.must(termQueryBuilder);
+//        boolBuilder.must(rangeQueryBuilder);
+        sourceBuilder.query(boolQuery);
+        **/
+        
+        MatchAllQueryBuilder matchAllQueryBuilder = QueryBuilders.matchAllQuery();
+        sourceBuilder.query(matchAllQueryBuilder);
+        
+        SearchRequest searchRequest = new SearchRequest("balancepoc");
+//        searchRequest.types(type);
+        searchRequest.source(sourceBuilder);
+        try {
+        	// 从连接池领用
+        	rhlClient = EsConnectionPoolUtil.getClient();
+        	
+            SearchResponse response = rhlClient.search(searchRequest, RequestOptions.DEFAULT);
+            System.out.println(response);
+            
+            // 还给连接池
             EsConnectionPoolUtil.returnClient(rhlClient);
         } catch (IOException e) {
             e.printStackTrace();
