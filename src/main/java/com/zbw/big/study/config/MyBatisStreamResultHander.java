@@ -17,7 +17,7 @@ public class MyBatisStreamResultHander implements ResultHandler {
 	// 存储每批数据的临时容器
 	private List<TtRoBalancedJoinLabour> list = new ArrayList<TtRoBalancedJoinLabour>();;
 	private TtRoBalancedJoinLabour ttRoBalancedJoinLabour;
-	private EsIndexServiceImpl esIndexServiceImpl = new EsIndexServiceImpl();;
+	private EsIndexServiceImpl esIndexServiceImpl = new EsIndexServiceImpl();
 	
 	public void handleResult(ResultContext resultContext) {
 		ttRoBalancedJoinLabour = (TtRoBalancedJoinLabour) resultContext.getResultObject();

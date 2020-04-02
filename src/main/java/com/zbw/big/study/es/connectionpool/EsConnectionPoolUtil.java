@@ -10,7 +10,7 @@ public class EsConnectionPoolUtil {
 
 	// 采用默认配置maxTotal是8
 	{
-		poolConfig.setMaxTotal(8);
+		poolConfig.setMaxTotal(20);
 	}
 
 	// 要池化的对象的工厂类

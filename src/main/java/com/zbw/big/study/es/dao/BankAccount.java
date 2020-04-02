@@ -6,14 +6,34 @@ public class BankAccount {
 	private int balance;
 	private String firstname;
 	private String lastname;
-	private int age;
+	private int age_sortagg;
 	private String gender;
 	private String address;
 	private String employer;
 	private String email;
 	private String city;
 	private String state;
+	private int age_nosortagg;
+	private String city_fielddata;
 	
+	public int getAge_sortagg() {
+		return age_sortagg;
+	}
+	public void setAge_sortagg(int age_sortagg) {
+		this.age_sortagg = age_sortagg;
+	}
+	public int getAge_nosortagg() {
+		return age_nosortagg;
+	}
+	public void setAge_nosortagg(int age_nosortagg) {
+		this.age_nosortagg = age_nosortagg;
+	}
+	public String getCity_fielddata() {
+		return city_fielddata;
+	}
+	public void setCity_fielddata(String city_fielddata) {
+		this.city_fielddata = city_fielddata;
+	}
 	public int getAccount_number() {
 		return account_number;
 	}
@@ -37,12 +57,6 @@ public class BankAccount {
 	}
 	public void setLastname(String lastname) {
 		this.lastname = lastname;
-	}
-	public int getAge() {
-		return age;
-	}
-	public void setAge(int age) {
-		this.age = age;
 	}
 	public String getGender() {
 		return gender;

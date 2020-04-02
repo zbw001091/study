@@ -18,7 +18,7 @@ public class EsConnectionPoolFactory implements PooledObjectFactory<RestHighLeve
 
 	@Override
 	public void activateObject(PooledObject<RestHighLevelClient> arg0) throws Exception {
-		System.out.println("activateObject");
+//		System.out.println("activateObject");
 	}
 
 	@Override
@@ -40,8 +40,13 @@ public class EsConnectionPoolFactory implements PooledObjectFactory<RestHighLeve
 //		return new DefaultPooledObject<RestHighLevelClient>(client);
 		
 		CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-		credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("elastic","ehgjqQWcvFM5MKaekNbPkfsC"));//balance2/balance2只能有RBAC权限访问balancejoinlabourpoc2这个index
-		RestClientBuilder builder = RestClient.builder(new HttpHost("fd025d4752df4290b99f1b8fde02b315.10.203.80.133.ip.es.io", 9200))
+		credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("elastic","built-in"));
+//1		credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("elastic","ehgjqQWcvFM5MKaekNbPkfsC"));
+//2		credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("elastic","02zr2eja1QjQ0pyWDxuP1GDo"));
+		//balance2/balance2只能有RBAC权限访问balancejoinlabourpoc2这个index
+		RestClientBuilder builder = RestClient.builder(new HttpHost("10.203.109.120", 9200))
+//1		RestClientBuilder builder = RestClient.builder(new HttpHost("fd025d4752df4290b99f1b8fde02b315.10.203.80.133.ip.es.io", 9200))
+//2		RestClientBuilder builder = RestClient.builder(new HttpHost("fda7356c7ea944c69a7808cb5e6d5c84.10.203.80.133.ip.es.io", 9200)) //fd025d4752df4290b99f1b8fde02b315.10.203.80.133.ip.es.io : 9200
 		    .setHttpClientConfigCallback(new HttpClientConfigCallback() {
 		        @Override
 		        public HttpAsyncClientBuilder customizeHttpClient(
@@ -56,7 +61,7 @@ public class EsConnectionPoolFactory implements PooledObjectFactory<RestHighLeve
 
 	@Override
 	public void passivateObject(PooledObject<RestHighLevelClient> arg0) throws Exception {
-		System.out.println("passivateObject");
+//		System.out.println("passivateObject");
 	}
 
 	@Override
